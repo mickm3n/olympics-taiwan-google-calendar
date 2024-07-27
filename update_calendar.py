@@ -100,9 +100,6 @@ class CalendarUpdater:
             if end_time + datetime.timedelta(hours=3) < datetime.datetime.now(
                 tz=tz.gettz("Europe/Paris")
             ):
-                print(
-                    f"Skipping {unit['disciplineName']} - {unit['eventUnitName']} because it's over 3 hours ago"
-                )
                 continue
 
             # 如果有台灣選手參賽，添加到描述中
@@ -150,14 +147,13 @@ class CalendarUpdater:
                     self.calendar_service.events()
                     .get(
                         calendarId=self.calendar_id,
-                        eventId=self.game_calendar_mapping.get(event_id, ""),
+                        eventId=calendar_event_id,
                     )
                     .execute()
                 )
             except HttpError as error:
                 print(f"An error occurred: {error}")
-                print(f"404: {event_id} {calendar_event_id}")
-                calendar_event = None
+                raise
 
             if not calendar_event.get("id"):
                 calendar_event = (
@@ -169,6 +165,21 @@ class CalendarUpdater:
                     f'Event created: {calendar_event.get("summary")}: {calendar_event.get("htmlLink")}'
                 )
             else:
+                if (
+                    calendar_event.get("summary") == event.get("summary")
+                    and calendar_event.get("description") == event.get("description")
+                    and datetime.datetime.fromisoformat(
+                        calendar_event.get("start").get("dateTime")
+                    )
+                    == datetime.datetime.fromisoformat(
+                        event.get("start").get("dateTime")
+                    )
+                    and datetime.datetime.fromisoformat(
+                        calendar_event.get("end").get("dateTime")
+                    )
+                    == datetime.datetime.fromisoformat(event.get("end").get("dateTime"))
+                ):
+                    return calendar_event
                 calendar_event = (
                     self.calendar_service.events()
                     .update(
