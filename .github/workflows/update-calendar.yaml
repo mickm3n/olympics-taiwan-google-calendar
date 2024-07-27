@@ -24,6 +24,7 @@ jobs:
         run: python update_calendar.py
         env:
           GOOGLE_SERVICE_ACCOUNT_CREDENTIALS_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS_JSON }}
+          CALENDAR_ID: ${{ env.CALENDAR_ID }}
 
       - name: Commit and push if changed
         run: |
