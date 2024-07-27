@@ -154,7 +154,8 @@ class CalendarUpdater:
                     )
                     .execute()
                 )
-            except:
+            except HttpError as error:
+                print(f"An error occurred: {error}")
                 print(f"404: {event_id} {calendar_event_id}")
                 calendar_event = None
 
