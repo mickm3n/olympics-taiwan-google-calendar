@@ -167,7 +167,10 @@ class CalendarUpdater:
             else:
                 if (
                     calendar_event.get("summary") == event.get("summary")
-                    and calendar_event.get("description") == event.get("description")
+                    and (
+                        not calendar_event.get("description")
+                        or calendar_event.get("description") == event.get("description")
+                    )
                     and datetime.datetime.fromisoformat(
                         calendar_event.get("start").get("dateTime")
                     )
@@ -196,6 +199,14 @@ class CalendarUpdater:
         except HttpError as error:
             print(f"An error occurred: {error}")
             return None
+
+    def print(self, event):
+        print(
+            event.get("summary"),
+            event.get("description"),
+            event.get("start").get("dateTime"),
+            event.get("end").get("dateTime"),
+        )
 
 
 def main():
